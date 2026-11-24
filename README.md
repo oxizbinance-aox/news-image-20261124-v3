@@ -2,7 +2,9 @@
 
 **"THE WORLD IN ONE DAY — Tuesday 24 November 2026" — 34 stories, 8 regions**
 
-[![make.fun](https://make.fun/c/news-image-20261124/badge)](https://make.fun/bounty/news-image-20261124)
+[![make.fun · news-image-20261124](https://make.fun/badge/news-image-20261124.svg)](https://make.fun/bounty/news-image-20261124?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261124)
+[![rank](https://make.fun/badge/news-image-20261124/oxizbinance-aox/news-image-20261124-v3/rank.svg)](https://make.fun/bounty/news-image-20261124/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261124)
+[![reward](https://make.fun/badge/news-image-20261124/oxizbinance-aox/news-image-20261124-v3/reward.svg)](https://make.fun/bounty/news-image-20261124?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261124)
 Bounty: https://make.fun/bounty/news-image-20261124 — "Sum up 24 November's world news in one image". $100 pot, 50 paid places (1st $20). Round 2 cutoff: 25 Nov 07:00 WIB (25 Nov 00:00 UTC).
 
 One image, `entry.png`: exactly 1024×1024, 182,551 bytes (≤1 MiB), deterministic.
