@@ -9,6 +9,14 @@ two runs write byte-identical PNGs.
 
 After drawing, this script runs density_check.py (same directory) and exits
 non-zero if any gate fails, so a render without a counter run is impossible.
+
+FIX 24 Nov 2026 ~21:30 WIB (layout defect): every pictorial scene is now
+rendered onto a layer the exact size of its box and pasted, and each scene's
+verticals scale with its box height, so no scene element can spill onto
+list text (scene_market's line/candles had reached 56 px above their 40 px
+pictures-strip box, over ALSO ON items 24-27; scene_warship's smoke did the
+same over items 19-20). The layout validator now also checks text against
+every graphic box, not just text against text.
 """
 import json
 import subprocess
@@ -213,10 +221,16 @@ def stars(d, box, n, seed=7):
 
 
 def scene_market(d, x, y, w, h):
+    # Vertical offsets scale with the box height (k = h/100): at h=100 the
+    # drawing is byte-identical to the original; at h=40 (pictures strip)
+    # the skyline, candles and rising line shrink to fit INSIDE the box
+    # instead of spilling up to 56 px above it onto the ALSO ON list.
+    k = h / 100.0
     grad(d, (x, y, x + w, y + h), (22, 38, 77), (10, 18, 40))
     # skyline
     bx = x
     for i, bh in enumerate([26, 40, 32, 48, 36, 44, 30, 52, 38]):
+        bh = int(bh * k)
         bw = w // 9
         d.rectangle([bx, y + h - bh, bx + bw - 2, y + h], fill=(8, 14, 30))
         for wy in range(y + h - bh + 5, y + h - 4, 8):
@@ -228,17 +242,20 @@ def scene_market(d, x, y, w, h):
     n = 7
     for i in range(n):
         cx = x + 14 + i * ((w - 28) // n)
-        base = y + h - 34 - i * 6
-        top = base - 14 - i * 2
+        base = y + h - int(34 * k) - i * int(6 * k)
+        top = base - int(14 * k) - i * int(2 * k)
         col = GREEN if i % 2 == 0 else BRGREEN
         d.rectangle([cx, top, cx + 9, base], fill=col)
-        d.line([(cx + 4, top - 6), (cx + 4, base + 6)], fill=col, width=2)
+        d.line([(cx + 4, top - int(6 * k)), (cx + 4, base + int(6 * k))],
+               fill=col, width=2)
     # rising line + arrow
-    pts = [(x + 10 + i * ((w - 20) // 6), y + h - 30 - i * 9 - (i * i) // 3)
+    pts = [(x + 10 + i * ((w - 20) // 6),
+            y + h - int(30 * k) - i * int(9 * k) - int(((i * i) // 3) * k))
            for i in range(7)]
     d.line(pts, fill=BRGREEN, width=3, joint="curve")
     ex, ey = pts[-1]
-    d.polygon([(ex, ey - 9), (ex + 12, ey + 2), (ex - 2, ey + 8)], fill=BRGREEN)
+    d.polygon([(ex, ey - int(9 * k)), (ex + 12, ey + int(2 * k)),
+               (ex - 2, ey + int(8 * k))], fill=BRGREEN)
 
 
 def scene_warship(d, x, y, w, h):
@@ -258,14 +275,23 @@ def scene_warship(d, x, y, w, h):
     d.rectangle([hx + 26, hy - 22, hx + 74, hy], fill=(62, 68, 76))
     d.rectangle([hx + 40, hy - 38, hx + 52, hy - 22], fill=(62, 68, 76))
     d.line([(hx + 46, hy - 38), (hx + 46, hy - 48)], fill=(200, 200, 200), width=2)
-    # fire + smoke
-    d.polygon([(hx + 84, hy - 6), (hx + 96, hy - 26), (hx + 108, hy - 6)],
+    # fire + smoke (rise scaled to the box height, clamped inside it:
+    # at h=40 the unscaled smoke reached 39 px above the box, over the
+    # ALSO ON list; at h=100 the scaling is exact, only the clamp moves
+    # the third puff fully inside the lead image instead of over the
+    # red kicker bar above it)
+    k = h / 100.0
+    d.polygon([(hx + 84, hy - int(6 * k)), (hx + 96, hy - int(26 * k)),
+               (hx + 108, hy - int(6 * k))],
               fill=(255, 140, 30))
-    d.polygon([(hx + 88, hy - 4), (hx + 96, hy - 16), (hx + 104, hy - 4)],
+    d.polygon([(hx + 88, hy - int(4 * k)), (hx + 96, hy - int(16 * k)),
+               (hx + 104, hy - int(4 * k))],
               fill=(255, 210, 80))
     for i, r in enumerate([9, 7, 5]):
-        d.ellipse([hx + 92 + i * 8 - r, hy - 34 - i * 10 - r,
-                   hx + 92 + i * 8 + r, hy - 34 - i * 10 + r],
+        cy = hy - int(34 * k) - i * int(10 * k)
+        cy = max(cy, y + r + 1)
+        d.ellipse([hx + 92 + i * 8 - r, cy - r,
+                   hx + 92 + i * 8 + r, cy + r],
                   fill=(120, 120, 120))
     # drone boats with wakes
     for dx in (x + 12, x + w - 46):
@@ -315,8 +341,13 @@ def scene_awacs(d, x, y, w, h):
               fill=(200, 208, 215))
     d.polygon([(px + 30, py + 4), (px + 44, py + 16), (px + 52, py + 4)],
               fill=(200, 208, 215))
-    d.line([(px + 34, py - 7), (px + 34, py - 20)], fill=(90, 100, 110), width=2)
-    d.ellipse([px + 22, py - 30, px + 48, py - 16], fill=(120, 130, 140))
+    # radar dome + antenna (scaled to the box height: unscaled, the dome
+    # reached 7 px above the 42 px mid-story box, over the section rule)
+    k = h / 100.0
+    d.line([(px + 34, py - int(7 * k)), (px + 34, py - int(20 * k))],
+           fill=(90, 100, 110), width=2)
+    d.ellipse([px + 22, py - int(30 * k), px + 48, py - int(16 * k)],
+              fill=(120, 130, 140))
     d.line([(px - 26, py + 2), (px - 6, py + 2)], fill=(255, 255, 255), width=2)
 
 
@@ -346,9 +377,13 @@ def scene_hormuz(d, x, y, w, h):
     d.rectangle([tx, ty, tx + int(w * 0.55), ty + 10], fill=(24, 24, 28))
     d.rectangle([tx + int(w * 0.42), ty - 12, tx + int(w * 0.52), ty],
                 fill=(24, 24, 28))
-    d.polygon([(tx + int(w * 0.30), ty), (tx + int(w * 0.36), ty - 14),
+    # tanker + flame + smoke (flame/smoke rise scaled to the box height:
+    # unscaled, the smoke reached 2 px above the 40 px pictures box)
+    k = h / 100.0
+    d.polygon([(tx + int(w * 0.30), ty), (tx + int(w * 0.36), ty - int(14 * k)),
                (tx + int(w * 0.42), ty)], fill=(255, 140, 30))
-    d.ellipse([tx + int(w * 0.32), ty - 26, tx + int(w * 0.40), ty - 14],
+    d.ellipse([tx + int(w * 0.32), ty - int(26 * k),
+               tx + int(w * 0.40), ty - int(14 * k)],
               fill=(110, 110, 110))
 
 
@@ -469,6 +504,35 @@ SCENES = {"market": scene_market, "warship": scene_warship, "cop31": scene_cop31
           "grok": scene_grok, "boat": scene_boat, "mexico": scene_mexico,
           "moon": scene_moon}
 
+# ---------------------------------------------------------------- graphics registry
+# GRAPHICS holds (x0, y0, x1, y1, label) for every chart/graphic element's
+# box, so the layout validator can check text-vs-graphics overlap (NI24 v3
+# fix: the old validator only checked text-on-text and missed a chart
+# spilling onto the ALSO ON list).
+GRAPHICS = []
+
+
+def draw_scene(d, img, name, x, y, w, h):
+    """Draw one pictorial scene clipped to its own box.
+
+    The scene is rendered onto a throwaway layer the exact size of its box
+    and pasted, so no scene element can ever paint outside its box. The
+    NI24 v3 defect was exactly this: scene_market's rising line and
+    candlesticks reached 56 px above their 40 px pictures-strip box and
+    crossed ALSO ON items 24-27; scene_warship's smoke did the same over
+    items 19-20. Text drawn by a scene (scene_grok's "!") is re-based
+    into main-image coordinates so the validator still sees it.
+    """
+    layer = Image.new("RGB", (w, h), PAPER)
+    ld = ImageDraw.Draw(layer)
+    before = len(RECTS)
+    SCENES[name](ld, 0, 0, w, h)
+    for i in range(before, len(RECTS)):
+        a, b, c, e, s = RECTS[i]
+        RECTS[i] = (a + x, b + y, c + x, e + y, s)
+    img.paste(layer, (x, y))
+    GRAPHICS.append((x, y, x + w, y + h, f"scene:{name}"))
+
 # ---------------------------------------------------------------- map
 # Rough continent outlines in lon/lat, drawn as a dotted land mask.
 CONTINENTS = [
@@ -578,7 +642,7 @@ def build():
         T(d, x + 6, y + 4, L["kicker"], F(SANSB, 11), (255, 255, 255))
         chip(d, x + colw - 92, y + 2, L["chip"], (SANSB, 8), NAVY, (255, 255, 255))
         by = y + 19
-        SCENES[L["scene"]](d, x, by, colw, 100)
+        draw_scene(d, img, L["scene"], x, by, colw, 100)
         d.rectangle([x, by, x + colw, by + 100], outline=NAVY, width=1)
         ly = by + 100 + 5
         T(d, x, ly, f"{L['n']}  {L['place']}  •  {L['beat']}", F(SANSB, 10), INK)
@@ -596,7 +660,7 @@ def build():
         r, c = divmod(idx, 5)
         x = MX + c * (midw + 8)
         y = 478 + r * 104
-        SCENES[M["scene"]](d, x, y, midw, 42)
+        draw_scene(d, img, M["scene"], x, y, midw, 42)
         d.rectangle([x, y, x + midw, y + 42], outline=NAVY, width=1)
         T(d, x, y + 46, f"{M['n']}  {M['place']}", F(SANSB, 9), INK)
         hy = y + 58
@@ -607,6 +671,7 @@ def build():
     T(d, MX, 690, "WHERE IT HAPPENED", F(SANSB, 11), RED)
     T(d, MX + 168, 690, "pins match story numbers", F(SANS, 9), GREY)
     draw_map(d, MX, 704, 560, 112)
+    GRAPHICS.append((MX, 704, MX + 560, 816, "map"))
     d.rectangle([MX, 704, MX + 560, 816], outline=NAVY, width=1)
     rx = MX + 568
     rw = W - MX - rx
@@ -618,6 +683,7 @@ def build():
         bx0 = rx + 92
         bw = int((rw - 112) * cnt / maxc)
         d.rectangle([bx0, by + 1, bx0 + bw, by + 6], fill=RED)
+        GRAPHICS.append((bx0, by + 1, bx0 + bw, by + 6, "region-bar"))
         T(d, bx0 + bw + 4, by, str(cnt), F(SANSB, 8), RED)
     T(d, rx, 778, "MARKETS ON TUESDAY  —  % CHANGE", F(SANSB, 9), INK)
     base = 812
@@ -626,6 +692,7 @@ def build():
         bx = rx + i * bw
         bh = int(val / 31.5 * 14)
         d.rectangle([bx + 6, base - bh, bx + bw - 6, base], fill=GREEN)
+        GRAPHICS.append((bx + 6, base - bh, bx + bw - 6, base, "market-bar"))
         T(d, bx + bw // 2, base - bh - 9, f"+{val}%", F(SANSB, 8), GREEN,
           anchor="ma")
         T(d, bx + bw // 2, base + 1, name, F(SANS, 7), GREY, anchor="ma")
@@ -646,7 +713,7 @@ def build():
     for i, (scene, cap) in enumerate(PICTURES):
         x = MX + i * (pw + 6)
         y = 938
-        SCENES[scene](d, x, y, pw, 40)
+        draw_scene(d, img, scene, x, y, pw, 40)
         d.rectangle([x, y, x + pw, y + 40], outline=NAVY, width=1)
         d.rectangle([x, y + 28, x + pw, y + 40], fill=RED)
         T(d, x + pw // 2, y + 31, cap, F(SANSB, 8), (255, 255, 255), anchor="ma")
@@ -660,7 +727,10 @@ def build():
          "Left out as other days' news: Huang's ouster (11 Nov); the COP31 talks' opening (9 Nov); the Merkury attack itself (Sun 22 Nov) counts here for its Mon 23 Nov confirmation. Sources: Reuters, WSJ, CNN, AP, Al Jazeera, Carbon Brief, Delta. Pictures and map: original, drawn in code. PRESS TIME 09:00 UTC.",
          (SANS, 8), GREY, W - 2 * MX - 8, 9, 3)
 
-    # ---- layout validator: no text outside the canvas, no text-on-text
+    # ---- layout validator: no text outside the canvas, no text-on-text,
+    # and no text under any chart/graphic element (NEW in the NI24 v3 fix:
+    # the old validator only checked text-on-text, so a chart spilling
+    # onto the ALSO ON list passed every gate).
     problems = []
     for (a, b, c, e, s) in RECTS:
         if a < 0 or b < 0 or c > W or e > H:
@@ -672,12 +742,42 @@ def build():
             oy = min(a[3], b[3]) - max(a[1], b[1])
             if ox > 1 and oy > 1:
                 problems.append(f"TEXT OVERLAP {a[4]!r} <-> {b[4]!r}")
+    # text-vs-graphics: every text box must clear every graphic box.
+    # Three intentional overlays are exempt by design and logged:
+    # map pin numbers (digits drawn on the map), pictures-strip captions
+    # (white text on the red bar inside each picture), scene_grok's "!"
+    # (the warning mark inside its own scene).
+    caption_labels = {cap for _, cap in PICTURES}
+    exempt = 0
+    graphic_hits = 0
+    for (a, b, c, e, s) in RECTS:
+        for (gx0, gy0, gx1, gy1, glab) in GRAPHICS:
+            ox = min(c, gx1) - max(a, gx0)
+            oy = min(e, gy1) - max(b, gy0)
+            if ox > 1 and oy > 1:
+                if s.strip().isdigit() and glab == "map":
+                    exempt += 1
+                    continue
+                if s in caption_labels and glab.startswith("scene:"):
+                    exempt += 1
+                    continue
+                if s == "!":
+                    exempt += 1
+                    continue
+                problems.append(
+                    f"TEXT-ON-GRAPHIC {s!r} <-> {glab} {(a, b, c, e)}")
+                graphic_hits += 1
+    print(f"GRAPHICS CHECK: {len(GRAPHICS)} graphic boxes vs "
+          f"{len(RECTS)} text boxes, {exempt} intentional overlays "
+          f"exempted, {graphic_hits} text-on-graphic hits")
     if problems:
         print("LAYOUT GATE: FAIL")
         for p in problems[:20]:
             print(" ", p)
         sys.exit(1)
-    print(f"LAYOUT GATE: PASS ({len(RECTS)} text boxes, 0 overflow, 0 overlap)")
+    print(f"LAYOUT GATE: PASS ({len(RECTS)} text boxes, 0 overflow, "
+          f"0 overlap, {len(GRAPHICS)} graphics checked, "
+          f"0 text-on-graphic)")
 
     img.save(HERE / "entry.png", optimize=True)
     manifest = {

@@ -5,9 +5,16 @@
 [![make.fun](https://make.fun/c/news-image-20261124/badge)](https://make.fun/bounty/news-image-20261124)
 Bounty: https://make.fun/bounty/news-image-20261124 — "Sum up 24 November's world news in one image". $100 pot, 50 paid places (1st $20). Round 2 cutoff: 25 Nov 07:00 WIB (25 Nov 00:00 UTC).
 
-One image, `entry.png`: exactly 1024×1024, 183,690 bytes (≤1 MiB), deterministic.
-`sha256 entry.png` = `3448b96aaf5f3dc601e5825ae1b1738e33ff8cdd31e9d6979ea4aa59a4e53fa9`
+One image, `entry.png`: exactly 1024×1024, 182,551 bytes (≤1 MiB), deterministic.
+`sha256 entry.png` = `40ecec7a7dd7189fd9ab59b9900107bfce3fee825d007a290bd1b6a669d25ded`
 (two runs of `main.ts` byte-identical — see Gates below).
+
+> **Layout fix 24 Nov 2026 ~21:30 WIB:** parent QC found the pictures-strip
+> market chart spilling 56 px above its box onto ALSO ON items 24–27 (the
+> old validator checked text-on-text only). Fixed in `draw_news24.py`:
+> scenes render clipped to their own boxes, scene verticals scale with box
+> height, and the validator now also checks every text box against every
+> graphic box (34 boxes, 0 hits). Stories, counts and template unchanged.
 
 ## What the image holds
 
@@ -78,10 +85,10 @@ mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts   # copies entry.png to out/
 
 ## Gates (all passed 24 Nov 2026)
 
-- **Density counter** (`density_check.py`, run automatically at the end of every render): 34 stories (band 30–42), 8 regions (6–9), map present, 3 charts (region bars, markets bars, lead-1 line chart), 6 timeline events, 6 numbers. Map ink 0.320, region chart ink 0.280, markets ink 0.215, numbers strip 2,983 red pixels. **DENSITY GATE: PASS.**
-- **Layout validator** (PIL bounding-box check inside the render): 217 text boxes, 0 overflow, 0 text-on-text overlap. **LAYOUT GATE: PASS.** Eye-QC at full size and at 300 px: hierarchy holds, no garble.
+- **Density counter** (`density_check.py`, run automatically at the end of every render): 34 stories (band 30–42), 8 regions (6–9), map present, 3 charts (region bars, markets bars, lead-1 line chart), 6 timeline events, 6 numbers. Map ink 0.325, region chart ink 0.280, markets ink 0.209, numbers strip 2,983 red pixels. **DENSITY GATE: PASS.**
+- **Layout validator** (PIL bounding-box check inside the render): 217 text boxes, 0 overflow, 0 text-on-text overlap; **NEW text-vs-graphics check: 34 graphic boxes, 0 text-on-graphic hits** (21 intentional overlays exempted: map pins, pictures-strip captions, grok "!"). **LAYOUT GATE: PASS.** Eye-QC at full size and at 300 px: hierarchy holds, no garble; ALSO ON items 24–27 (and 19–20) fully legible after the fix, re-checked in all three columns.
 - **Self-judge vs references** (#34 @tuyul-2, 739991 and #36 @yuerta, 735256): v3 beats #34 on density (34 vs 33 stories, 8 vs 6 regions), matches on legibility, matches on design (same template, plus a markets chart and 6-picture strip), wins on breadth (8 regions). Heuristics: density W, legibility tie, design tie, breadth W. Illustration 2 / hierarchy 2 / craft 2 (total 6) vs #36's 6 — **submit-ready (combined craft score tied, density won)**. First self-judge scored illustration 1 (mid banners too small); mid banners were enlarged 36→42 px and the map/charts zone re-laid-out, then re-judged. Improvements over our v2 (#39, 719543): full pictorial lead banners instead of small icons, UTC timeline, numbers strip, region + markets charts, pictures strip, 3-column ALSO list — the template v2 lacked.
-- **Determinism**: `main.ts` run twice → byte-identical `entry.png`, sha256 `3448b96aaf5f3dc601e5825ae1b1738e33ff8cdd31e9d6979ea4aa59a4e53fa9` on both runs.
+- **Determinism**: `main.ts` run twice → byte-identical `entry.png`, sha256 `40ecec7a7dd7189fd9ab59b9900107bfce3fee825d007a290bd1b6a669d25ded` on both runs (re-run after the layout fix).
 
 ## Payout
 
