@@ -1,0 +1,194 @@
+{
+ "stories": 34,
+ "regions": 8,
+ "charts": 3,
+ "map": true,
+ "timeline_events": 6,
+ "numbers": 6,
+ "leads": [
+  {
+   "n": 1,
+   "head": "Huang back at Nvidia as shares soar 31%",
+   "region": "BUSINESS"
+  },
+  {
+   "n": 2,
+   "head": "Ukraine sinks Russian warship off Libya",
+   "region": "WAR AT SEA"
+  },
+  {
+   "n": 3,
+   "head": "COP31 ends with no pact, the first since 2009",
+   "region": "CLIMATE"
+  }
+ ],
+ "mids": [
+  {
+   "n": 4,
+   "head": "NATO sends early-warning plane to Poland",
+   "region": "POLAND"
+  },
+  {
+   "n": 5,
+   "head": "96 drones in one night; Odesa dark and cold",
+   "region": "KYIV, UKRAINE"
+  },
+  {
+   "n": 6,
+   "head": "Iran vows to defy US blockade",
+   "region": "TEHRAN, IRAN"
+  },
+  {
+   "n": 7,
+   "head": "Delta outage grounds 3,000+ US flights",
+   "region": "ATLANTA, US"
+  },
+  {
+   "n": 8,
+   "head": "12 Chinese warships circle Taiwan",
+   "region": "TAIPEI, TAIWAN"
+  },
+  {
+   "n": 9,
+   "head": "5.6 quake strikes Nepal near China",
+   "region": "NEPAL"
+  },
+  {
+   "n": 10,
+   "head": "States sue SpaceX over Grok images",
+   "region": "WASHINGTON, US"
+  },
+  {
+   "n": 11,
+   "head": "24 dead as boat capsizes on way to funeral",
+   "region": "NIGERIA"
+  },
+  {
+   "n": 12,
+   "head": "Mexico nabs 'Chapo Isidro'; 16 killed",
+   "region": "MEXICO"
+  },
+  {
+   "n": 13,
+   "head": "Beaver Supermoon rises tonight",
+   "region": "WORLD"
+  }
+ ],
+ "also": [
+  {
+   "n": 14,
+   "region": "North America",
+   "head": "Trump to meet Rutte on Wednesday"
+  },
+  {
+   "n": 15,
+   "region": "Europe",
+   "head": "Germany adopts Ukraine's Delta battle system"
+  },
+  {
+   "n": 16,
+   "region": "Europe",
+   "head": "Ukraine drones set two Russian refineries ablaze"
+  },
+  {
+   "n": 17,
+   "region": "Middle East",
+   "head": "Houthis say they hit Saudi Arabia's Rabigh refinery"
+  },
+  {
+   "n": 18,
+   "region": "Middle East",
+   "head": "Israeli strike kills 3 in Khan Younis"
+  },
+  {
+   "n": 19,
+   "region": "Oceania",
+   "head": "Vanuatu 6.5 quake, no tsunami"
+  },
+  {
+   "n": 20,
+   "region": "Asia-Pacific",
+   "head": "Seoul names new foreign minister and spy chief"
+  },
+  {
+   "n": 21,
+   "region": "Oceania",
+   "head": "Hobart stadium bill jumps to $1.23 billion"
+  },
+  {
+   "n": 22,
+   "region": "Asia-Pacific",
+   "head": "US blacklists Megaspeed over export controls"
+  },
+  {
+   "n": 23,
+   "region": "North America",
+   "head": "US unveils H-1B visa changes"
+  },
+  {
+   "n": 24,
+   "region": "Europe",
+   "head": "Armenia drops Karabakh claim in draft constitution"
+  },
+  {
+   "n": 25,
+   "region": "Europe",
+   "head": "Cyprus expels two Russian diplomats over spying"
+  },
+  {
+   "n": 26,
+   "region": "Europe",
+   "head": "Bomb threats close schools in Germany and Denmark"
+  },
+  {
+   "n": 27,
+   "region": "Europe",
+   "head": "NATO offers Poland 'significant backing'"
+  },
+  {
+   "n": 28,
+   "region": "Europe",
+   "head": "Russian casualties outpace monthly recruiting, US says"
+  },
+  {
+   "n": 29,
+   "region": "North America",
+   "head": "US to host 2031 Women's World Cup, FIFA says"
+  },
+  {
+   "n": 30,
+   "region": "Latin America",
+   "head": "Panama and First Quantum resume Cobre mine talks"
+  },
+  {
+   "n": 31,
+   "region": "Latin America",
+   "head": "Storm forces thousands to flee in Brazil"
+  },
+  {
+   "n": 32,
+   "region": "Middle East",
+   "head": "Gaza's soil and water poisoned by war, report finds"
+  },
+  {
+   "n": 33,
+   "region": "World",
+   "head": "UN chief urges global AI safety rules within a year"
+  },
+  {
+   "n": 34,
+   "region": "Asia-Pacific",
+   "head": "India and Nepal sign 8 deals"
+  }
+ ],
+ "region_counts": {
+  "EUROPE": 9,
+  "N. AMERICA": 6,
+  "ASIA-PACIFIC": 5,
+  "MIDDLE EAST": 4,
+  "LATIN AMERICA": 3,
+  "WORLD": 3,
+  "AFRICA": 2,
+  "OCEANIA": 2
+ }
+}
